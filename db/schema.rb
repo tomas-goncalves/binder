@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_04_08_185252) do
+ActiveRecord::Schema[7.0].define(version: 2025_08_12_043836) do
   create_table "certification_types", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -178,6 +178,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_08_185252) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "short_name"
+    t.string "slack_webhook"
     t.index ["organization_category_id"], name: "index_organizations_on_organization_category_id"
   end
 

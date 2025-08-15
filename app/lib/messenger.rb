@@ -46,16 +46,55 @@ module Messenger
   end
 
   def send_slack(webhook_url, text)
+    execute_send_slack(webhook_url, { text: text }.to_json)
+  end
+
+  def send_organization_receipt(organization, text, item_amount = nil)
+    webhook_url = organization.slack_webhook
+
+    return if webhook_url.nil?
+
+    item = item_amount ? " [#{item_amount} items]" : ""
+    body = {
+     	"blocks": [
+    		{
+   			"type": "section",
+   			"text": {
+    				"type": "mrkdwn",
+    				"text": "*New Checkout*#{item}"
+   			}
+    		},
+    		{
+   			"type": "divider"
+    		},
+    		{
+   			"type": "section",
+   			"text": {
+    				"type": "mrkdwn",
+    				"text": "```#{text}```"
+   			}
+    		}
+     	]
+    }
+
+    execute_send_slack(webhook_url, body.to_json)
+  end
+
+  private
+
+  def execute_send_slack(webhook_url, body)
     # Send a message using the slack API: https://api.slack.com/methods/chat.postMessage
     slack_token = ENV.fetch('SLACK_BOT_TOKEN', nil)
 
-    return unless !Rails.env.test? && !slack_token.nil?
+    # return unless !Rails.env.test? && !slack_token.nil?
+    puts "Sending message to #{webhook_url}"
+    puts "Token #{slack_token}"
 
     uri = URI.parse(webhook_url)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
-    req.body = { text:, token: slack_token }.to_json
+    req.body = body
     http.request(req)
   end
 end
